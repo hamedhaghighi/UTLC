@@ -1,0 +1,34 @@
+Codes:
+  Data Parallel++
+  Async?
+  OctConv?
+Paper:
+  Title
+  Abstract
+  Intro
+  PrevWork
+  Method
+  Results
+  Conclusion
+  FutureWork
+Ablation(default_config: max_possible_batch_size, 30epochs, decay@22+28, lr=const, res_groups=7, channels=64, cifarQ49, 16stages, recurrent, position_encoding)
+  Recurrent vs Not
+  Position Encoding vs Not
+  Q40 vs Q49
+  4 vs 16 Stages
+  Attention vs Not
+  Mask Type?
+Sota:
+  Cifar
+  Imagenet
+Experiments:
+  Attention Visualization
+  Reduce Stages(2 per each vs 7+9)
+  Imagenet64 => Cifar ??
+  Cifar => Imagenet32
+  Generative(recurrent vs one-shot) vs PSNR
+Plots:
+  Model Visualization
+  bpsp
+  timing
+  detailed loss

@@ -1,0 +1,6 @@
+[submodule "libbpg"]
+	path = libbpg
+	url = https://github.com/Separius/libbpg
+[submodule "FLIF"]
+	path = FLIF
+	url = https://github.com/FLIF-hub/FLIF
