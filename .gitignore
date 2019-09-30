@@ -113,7 +113,7 @@ RNAN/code/Cifar_Data_orig/
 RNAN/code/model/data/
 RNAN/code/model/checkpoint/
 *.npy
-*.png
+#*.png
 *.bpg
 *.flif
 # Prerequisites
