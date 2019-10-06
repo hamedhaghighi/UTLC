@@ -4,12 +4,13 @@ Generally, we can categorize density estimators in two groups of auto-regressive
 ## Dependencies
 
 * numpy
-* Tensorflow>=1.8
-* scipy 
+* Pytroch==1.1
+* bcolz
+* tqdm
 
 ## Dataset
 
-[Cifar32](https://www.cs.toronto.edu/~kriz/cifar.html) - Using aligned images and then 
+[Cifar32](https://www.cs.toronto.edu/~kriz/cifar.html) 
 
 ## Overview
 
