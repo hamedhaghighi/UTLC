@@ -4,7 +4,7 @@ Generally, we can categorize density estimators in two groups of auto-regressive
 ## Dependencies
 
 * numpy
-* Pytroch==1.1
+* torch==1.1
 * bcolz
 * tqdm
 
