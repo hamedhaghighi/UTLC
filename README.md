@@ -10,7 +10,7 @@ Generally, we can categorize density estimators in two groups of auto-regressive
 
 ## Dataset
 
-[Cifar32](https://www.cs.toronto.edu/~kriz/cifar.html) 
+[Cifar-10](https://www.cs.toronto.edu/~kriz/cifar.html) 
 
 ## Overview
 
