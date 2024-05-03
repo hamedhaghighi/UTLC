@@ -1,6 +1,6 @@
 torch==1.1.0
 bcolz==1.2.1
 numpy==1.16.3
-tqdm==4.32.2
+tqdm==4.66.3
 tb-nightly
 future
