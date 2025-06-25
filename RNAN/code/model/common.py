@@ -1,24 +1,32 @@
-import torch
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
 
 
 def conv(in_channels, out_channels, kernel_size=3, bias=True):
-    return nn.Conv2d(in_channels, out_channels, kernel_size, padding=(kernel_size // 2), bias=bias)
+    """2D convolution with padding to preserve spatial size."""
+    return nn.Conv2d(
+        in_channels, out_channels, kernel_size, padding=(kernel_size // 2), bias=bias
+    )
 
 
 class ResBlock(nn.Module):
+    """Residual block with two convolutions and a ReLU activation."""
+
     def __init__(self, n_feat):
         super().__init__()
-        self.net = nn.Sequential(conv(n_feat, n_feat), nn.ReLU(True), conv(n_feat, n_feat))
+        self.net = nn.Sequential(
+            conv(n_feat, n_feat), nn.ReLU(True), conv(n_feat, n_feat)
+        )
 
     def forward(self, x):
         return self.net(x) + x
 
 
 def _attention(*inputs):
+    """Scaled dot-product attention for non-local block."""
     query, key, value = inputs
     logits = torch.matmul(query, key) / np.sqrt(key.size(1))
     spatial_attention = F.softmax(logits, dim=2)
@@ -26,13 +34,22 @@ def _attention(*inputs):
 
 
 class NonLocalBlock2D(nn.Module):
+    """2D non-local block for capturing long-range dependencies."""
+
     def __init__(self, in_channels, inter_channels, use_checkpoint):
         super().__init__()
         self.in_channels = in_channels
         self.inter_channels = inter_channels
-        self.query = conv(self.in_channels, self.inter_channels, kernel_size=1, bias=False)
-        self.key = conv(self.in_channels, self.inter_channels, kernel_size=1, bias=False)
-        self.value = conv(self.in_channels, self.inter_channels, kernel_size=1, bias=False)
+        # 1x1 convolutions for query, key, value
+        self.query = conv(
+            self.in_channels, self.inter_channels, kernel_size=1, bias=False
+        )
+        self.key = conv(
+            self.in_channels, self.inter_channels, kernel_size=1, bias=False
+        )
+        self.value = conv(
+            self.in_channels, self.inter_channels, kernel_size=1, bias=False
+        )
         self.W = conv(self.inter_channels, self.in_channels, kernel_size=1, bias=True)
         nn.init.constant_(self.W.weight, 0)
         nn.init.constant_(self.W.bias, 0)
@@ -53,15 +70,23 @@ class NonLocalBlock2D(nn.Module):
 
 
 class MaskBranchDownUp(nn.Module):
+    """Mask branch with downsampling and upsampling, optionally with non-local block."""
+
     def __init__(self, n_feat, is_nonlocal=False, use_checkpoint=True):
         super().__init__()
-        self.non_local = NonLocalBlock2D(n_feat, n_feat, use_checkpoint) if is_nonlocal else nn.Identity()
+        self.non_local = (
+            NonLocalBlock2D(n_feat, n_feat, use_checkpoint)
+            if is_nonlocal
+            else nn.Identity()
+        )
         self.head = ResBlock(n_feat)
         self.before_middle = nn.Conv2d(n_feat, n_feat, 3, stride=2, padding=1)
         self.middle = nn.ModuleList([ResBlock(n_feat) for _ in range(2)])
         self.after_middle = nn.ConvTranspose2d(n_feat, n_feat, 6, stride=2, padding=2)
         self.tail_rb = ResBlock(n_feat)
-        self.tail = nn.Sequential(nn.Conv2d(n_feat, n_feat, 1, padding=0, bias=True), nn.Sigmoid())
+        self.tail = nn.Sequential(
+            nn.Conv2d(n_feat, n_feat, 1, padding=0, bias=True), nn.Sigmoid()
+        )
 
     def forward(self, x):
         h = self.non_local(x)
@@ -75,6 +100,8 @@ class MaskBranchDownUp(nn.Module):
 
 
 class ResAttModuleDownUpPlus(nn.Module):
+    """Residual attention module with down-up mask branch and trunk blocks."""
+
     def __init__(self, n_feat, is_nonlocal=False, use_checkpoint=True):
         super().__init__()
         self.head = nn.ModuleList([ResBlock(n_feat) for _ in range(1)])

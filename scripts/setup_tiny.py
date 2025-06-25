@@ -1,23 +1,23 @@
 import os
-import numpy as np
 from glob import glob
-from skimage import io
-from tqdm import trange
-from skimage.color import grey2rgb
 
-from common import get_carray, get_bpg
+import numpy as np
+from common import get_bpg, get_carray
+from skimage import io
+from skimage.color import grey2rgb
+from tqdm import trange
 
 
 def process(path, mode):
-    if mode == 'train':
-        image_addresses = 'train/*/images/*.JPEG'
+    if mode == "train":
+        image_addresses = "train/*/images/*.JPEG"
     else:
-        image_addresses = '{}/images/*.JPEG'.format(mode)
+        image_addresses = "{}/images/*.JPEG".format(mode)
     image_addresses = glob(os.path.join(path, image_addresses), recursive=True)
-    if mode != 'test':
+    if mode != "test":
         np.random.shuffle(image_addresses)
     expected_len = len(image_addresses)
-    data_path = '../prepared_data/tiny/{}'.format(mode)
+    data_path = "../prepared_data/tiny/{}".format(mode)
     lr_data = get_carray(data_path, expected_len, 64, is_lr=True)
     hr_data = get_carray(data_path, expected_len, 64, is_lr=False)
     bpg_sizes = np.zeros((expected_len,), dtype=np.uint32)
@@ -31,7 +31,7 @@ def process(path, mode):
         hr_data.append(hr_img.transpose((2, 0, 1)))
         bpg_sizes[i] = bpg_size
     bpg_sizes = bpg_sizes * 8.0 / 64 / 64 / 3  # bpsp
-    np.savez(data_path+'.npz', bpg_size=bpg_sizes)
+    np.savez(data_path + ".npz", bpg_size=bpg_sizes)
     lr_data.flush()
     hr_data.flush()
 
@@ -39,12 +39,12 @@ def process(path, mode):
 def main(path):
     path = os.path.expanduser(path)
     if not os.path.exists(path):
-        raise ValueError('please download and place tiny-imagenet in {}'.format(path))
-    os.makedirs('../prepared_data/tiny/', exist_ok=True)
-    process(path, 'test')
-    process(path, 'val')
-    process(path, 'train')
+        raise ValueError("please download and place tiny-imagenet in {}".format(path))
+    os.makedirs("../prepared_data/tiny/", exist_ok=True)
+    process(path, "test")
+    process(path, "val")
+    process(path, "train")
 
 
-if __name__ == '__main__':
-    main('~/.torch/data/tiny-imagenet-200/')
+if __name__ == "__main__":
+    main("~/.torch/data/tiny-imagenet-200/")
